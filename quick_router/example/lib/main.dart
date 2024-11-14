@@ -1,3 +1,6 @@
+import 'package:example/home_named.dart';
+import 'package:example/screen_A.dart';
+import 'package:example/screen_b.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quick_router/quick_router.dart';
 
@@ -20,11 +23,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'QUICK ROUTER',
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const HomeNameScreen(),
+        '/screenA': (context) => ScreenA(),
+        '/screenB': (context) => ScreenB(),
+      },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+    //  home: const HomeScreen(),
     );
   }
 }

@@ -252,4 +252,42 @@ extension QuickRouters on BuildContext {
   void removeRouteBelow(Route<dynamic> anchorRoute) {
     return Navigator.of(this).removeRouteBelow(anchorRoute);
   }
+  /// Navigate to a new named route with a specified transition.
+  Future<T?> toNamed<T extends Object?>(
+      String routeName, {
+        Object? arguments,
+        QuickTransition? transitions,
+      }) {
+    return Navigator.of(this).push(
+      QuickRouter.builderNamed(routeName, transitions, arguments: arguments),
+    );
+  }
+
+  /// Replace the current route with a new named route.
+  Future<T?> pushReplacementNamed<T extends Object?, TO extends Object?>(
+      String routeName, {
+        TO? result,
+        Object? arguments,
+        QuickTransition? transitions,
+      }) {
+    return Navigator.of(this).pushReplacement(
+      QuickRouter.builderNamed(routeName, transitions, arguments: arguments),
+      result: result,
+    );
+  }
+
+  /// Remove all previous routes and push a new named route.
+  Future<T?> pushNamedAndRemoveUntil<T extends Object?>(
+      String routeName,
+      RoutePredicate predicate, {
+        Object? arguments,
+        QuickTransition? transitions,
+      }) {
+    return Navigator.of(this).pushAndRemoveUntil(
+      QuickRouter.builderNamed(routeName, transitions, arguments: arguments),
+      predicate,
+    );
+  }
+
+
 }

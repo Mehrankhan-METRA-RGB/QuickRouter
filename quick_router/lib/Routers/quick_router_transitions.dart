@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 ///[QuickTransition] is a class providing quick implementations of
 ///various transition animations for routing between screens.
@@ -256,6 +255,135 @@ sealed class QuickTransition<T> {
         fullscreenDialog: fullscreenDialog,
         allowSnapshotting: allowSnapshotting);
   }
+
+  // Slide transition for named routes
+  static PageRouteBuilder<T> slideNamed<T>(
+      String routeName, {
+        Offset begin = const Offset(1.0, 0.0),
+        Offset end = Offset.zero,
+        Curve curve = Curves.easeInOut,
+        Object? arguments,
+        Duration duration = const Duration(milliseconds: 300),
+      }) {
+    return PageRouteBuilder<T>(
+      settings: RouteSettings(name: routeName, arguments: arguments),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        final builder = _getRouteBuilder(context, routeName);
+        return builder != null ? builder(context) : const SizedBox.shrink();
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        final offsetAnimation = Tween(begin: begin, end: end)
+            .chain(CurveTween(curve: curve))
+            .animate(animation);
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
+      transitionDuration: duration,
+    );
+  }
+
+  // Rotation transition for named routes
+  static PageRouteBuilder<T> rotationNamed<T>(
+      String routeName, {
+        double turnsBegin = 0,
+        double turnsEnd = 1,
+        Alignment alignment = Alignment.center,
+        Object? arguments,
+        Duration duration = const Duration(milliseconds: 300),
+      }) {
+    return PageRouteBuilder<T>(
+      settings: RouteSettings(name: routeName, arguments: arguments),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        final builder = _getRouteBuilder(context, routeName);
+        return builder != null ? builder(context) : const SizedBox.shrink();
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return RotationTransition(
+          turns: Tween(begin: turnsBegin, end: turnsEnd).animate(animation),
+          alignment: alignment,
+          child: child,
+        );
+      },
+      transitionDuration: duration,
+    );
+  }
+
+  // Scale transition for named routes
+  static PageRouteBuilder<T> scaleNamed<T>(
+      String routeName, {
+        double scaleBegin = 0,
+        double scaleEnd = 1,
+        Alignment alignment = Alignment.center,
+        Object? arguments,
+        Duration duration = const Duration(milliseconds: 300),
+      }) {
+    return PageRouteBuilder<T>(
+      settings: RouteSettings(name: routeName, arguments: arguments),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        final builder = _getRouteBuilder(context, routeName);
+        return builder != null ? builder(context) : const SizedBox.shrink();
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return ScaleTransition(
+          scale: Tween(begin: scaleBegin, end: scaleEnd).animate(animation),
+          alignment: alignment,
+          child: child,
+        );
+      },
+      transitionDuration: duration,
+    );
+  }
+
+  // Size transition for named routes
+  static PageRouteBuilder<T> sizeNamed<T>(
+      String routeName, {
+        Axis axis = Axis.vertical,
+        double axisAlignment = 0.0,
+        Object? arguments,
+        Duration duration = const Duration(milliseconds: 300),
+      }) {
+    return PageRouteBuilder<T>(
+      settings: RouteSettings(name: routeName, arguments: arguments),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        final builder = _getRouteBuilder(context, routeName);
+        return builder != null ? builder(context) : const SizedBox.shrink();
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return SizeTransition(
+          sizeFactor: animation,
+          axis: axis,
+          axisAlignment: axisAlignment,
+          child: child,
+        );
+      },
+      transitionDuration: duration,
+    );
+  }
+
+  // Fade transition for named routes
+  static PageRouteBuilder<T> fadeNamed<T>(
+      String routeName, {
+        Object? arguments,
+        Duration duration = const Duration(milliseconds: 300),
+      }) {
+    return PageRouteBuilder<T>(
+      settings: RouteSettings(name: routeName, arguments: arguments),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        final builder = _getRouteBuilder(context, routeName);
+        return builder != null ? builder(context) : const SizedBox.shrink();
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(opacity: animation, child: child);
+      },
+      transitionDuration: duration,
+    );
+  }
+
+  // Helper method to get the route builder for a named route
+  static WidgetBuilder? _getRouteBuilder(BuildContext context, String routeName) {
+    final appState = context.findAncestorWidgetOfExactType<MaterialApp>();
+    return appState?.routes?[routeName];
+  }
+
 }
 
 /// Slide transition: Moving the screen in from the side.

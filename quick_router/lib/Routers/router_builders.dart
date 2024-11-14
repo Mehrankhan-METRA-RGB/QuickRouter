@@ -89,4 +89,51 @@ class QuickRouter {
           allowSnapshotting: transitions.allowSnapshotting),
     };
   }
+
+
+  // Updated builderNamed method for named routes with transitions
+  static PageRouteBuilder<T> builderNamed<T>(
+      String routeName,
+      QuickTransition? transitions, {
+        Object? arguments,
+      }) {
+    if (transitions is QuickSlide) {
+      return QuickTransition.slideNamed<T>(
+        routeName,
+        begin: transitions.start ?? const Offset(1.0, 0.0),
+        end: transitions.end ?? Offset.zero,
+        curve:  Curves.easeInOut,
+        arguments: arguments,
+      );
+    } else if (transitions is QuickRotate) {
+      return QuickTransition.rotationNamed<T>(
+        routeName,
+        turnsBegin: transitions.turns?.value ?? 0,
+        turnsEnd: 1,
+        alignment: transitions.alignment ?? Alignment.center,
+        arguments: arguments,
+      );
+    } else if (transitions is QuickScale) {
+      return QuickTransition.scaleNamed<T>(
+        routeName,
+        scaleBegin: 0,
+        scaleEnd: 1,
+        alignment: transitions.alignment ?? Alignment.center,
+        arguments: arguments,
+      );
+    } else if (transitions is QuickSize) {
+      return QuickTransition.sizeNamed<T>(
+        routeName,
+        axis: transitions.axis ?? Axis.vertical,
+        axisAlignment: transitions.axisAlignment ?? 0.0,
+        arguments: arguments,
+      );
+    } else {
+      // Default to fade if no transition is specified
+      return QuickTransition.fadeNamed<T>(
+        routeName,
+        arguments: arguments,
+      );
+    }
+  }
 }
