@@ -2,12 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_quick_router/quick_router.dart';
 
 class QuickRouter {
-  static PageRouteBuilder<T> builder<T>(
-    Widget child,
-    QuickTransition? transitions,
-  ) {
-    if (transitions == null) {
-      return QuickTransition.fade<T>(
+  static defaultTransition<T>(Widget child) => QuickTransition.fade<T>(
         child,
         transitionDuration: const Duration(milliseconds: 300),
         reverseTransitionDuration: const Duration(milliseconds: 300),
@@ -17,6 +12,23 @@ class QuickRouter {
         fullscreenDialog: false,
         allowSnapshotting: true,
       );
+
+  static PageRouteBuilder<T> builder<T>(
+    Widget child,
+    QuickTransition? transitions,
+  ) {
+    if (transitions == null) {
+      return defaultTransition<T>(child);
+      // return QuickTransition.fade<T>(
+      //   child,
+      //   transitionDuration: const Duration(milliseconds: 300),
+      //   reverseTransitionDuration: const Duration(milliseconds: 300),
+      //   opaque: true,
+      //   barrierDismissible: false,
+      //   maintainState: true,
+      //   fullscreenDialog: false,
+      //   allowSnapshotting: true,
+      // );
     }
 
     return switch (transitions) {

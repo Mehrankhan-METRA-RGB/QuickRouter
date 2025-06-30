@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quick_router/Routers/router_builders.dart';
 import 'package:flutter_quick_router/quick_router.dart';
 
 QuickTransition defaultTransition = QuickFade();
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
 
 // A widget that defines the main screen of the app
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -142,10 +143,7 @@ class SecondScreen extends StatelessWidget {
                 context.restorableReplace(
                   old: this,
                   transitions: defaultTransition,
-                  to: (context, arguments) => MaterialPageRoute(
-                    builder: (context) => const FifthScreen(),
-                    settings: const RouteSettings(name: '/fifth'),
-                  ),
+                  toBuilder: RouteData.toReplaceRestorable,
                   arguments: 'Some arguments',
                 );
               },
@@ -234,4 +232,11 @@ class FifthScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class RouteData {
+  static Route<Object?> toReplaceRestorable<T>(
+          BuildContext context, Object? object) =>
+      QuickRouter.builder(const FifthScreen(),
+          QuickRouter.defaultTransition<T>(const FifthScreen()));
 }

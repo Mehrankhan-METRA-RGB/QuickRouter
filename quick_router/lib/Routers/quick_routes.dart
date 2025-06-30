@@ -136,7 +136,7 @@ extension QuickRouters on BuildContext {
   /// - [QuickFade]: Swiftly fades the content.
   ///
   /// The default transition is [QuickFade].
-  @optionalTypeArgs
+  // @optionalTypeArgs
   void replace<T extends Object?>(
       {required Widget old, required Widget to, QuickTransition? transitions}) {
     return Navigator.of(this).replace<T>(
@@ -162,12 +162,12 @@ extension QuickRouters on BuildContext {
   /// The default transition is [QuickFade].
   String restorableReplace<T extends Object?>(
       {required Widget old,
-      required RestorableRouteBuilder<T> to,
+      required Route<T> Function(BuildContext, Object?) toBuilder,
       QuickTransition? transitions,
       Object? arguments}) {
     return Navigator.of(this).restorableReplace<T>(
         oldRoute: QuickRouter.builder(old, transitions),
-        newRouteBuilder: to,
+        newRouteBuilder: toBuilder,
         arguments: arguments);
   }
 
@@ -251,5 +251,15 @@ extension QuickRouters on BuildContext {
   /// A method that removes the route below the given one from the Navigator.
   void removeRouteBelow(Route<dynamic> anchorRoute) {
     return Navigator.of(this).removeRouteBelow(anchorRoute);
+  }
+}
+
+class MyAppRoutes {
+  @pragma('vm:entry-point')
+  static Route<dynamic> myRestorableRouteBuilder(
+      BuildContext context, Object? arguments) {
+    return MaterialPageRoute(
+      builder: (context) => Placeholder(),
+    );
   }
 }
