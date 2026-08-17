@@ -36,7 +36,9 @@ sealed class QuickTransition<T> {
 
   static PageRouteBuilder<T> _transitionRoute<T>(
     Widget child,
-    Widget Function(Animation<double> animation) transitionBuilder, {
+    Widget Function(Animation<double> animation, Widget child)
+        transitionBuilder, {
+    RouteSettings? settings,
     required Duration transitionDuration,
     required Duration reverseTransitionDuration,
     required bool opaque,
@@ -48,6 +50,7 @@ sealed class QuickTransition<T> {
     required bool allowSnapshotting,
   }) {
     return PageRouteBuilder<T>(
+        settings: settings,
         pageBuilder: (context, animation, secondaryAnimation) => child,
         transitionsBuilder: (
           context,
@@ -56,10 +59,10 @@ sealed class QuickTransition<T> {
           currentChild,
         ) {
           // Invoke the specified transition builder
-          return transitionBuilder(animation);
+          return transitionBuilder(animation, currentChild);
         },
         transitionDuration: transitionDuration,
-        reverseTransitionDuration: transitionDuration,
+        reverseTransitionDuration: reverseTransitionDuration,
         opaque: opaque,
         barrierDismissible: barrierDismissible,
         barrierColor: barrierColor,
@@ -72,6 +75,7 @@ sealed class QuickTransition<T> {
   // Slide transition
   static PageRouteBuilder<T> slide<T>(
     Widget child, {
+    RouteSettings? settings,
     Offset? begin,
     Offset? end,
     Animatable<double>? curve,
@@ -87,7 +91,7 @@ sealed class QuickTransition<T> {
     required bool fullscreenDialog,
     required bool allowSnapshotting,
   }) {
-    return _transitionRoute<T>(child, (animation) {
+    return _transitionRoute<T>(child, (animation, transitionChild) {
       Offset start = begin ?? const Offset(1.0, 0.0);
       Offset finish = end ?? Offset.zero;
       Animatable<double> animate = curve ?? CurveTween(curve: Curves.easeInOut);
@@ -99,11 +103,12 @@ sealed class QuickTransition<T> {
         position: offsetAnimation,
         transformHitTests: transformHitTests,
         textDirection: textDirection,
-        child: child,
+        child: transitionChild,
       );
     },
+        settings: settings,
         transitionDuration: transitionDuration,
-        reverseTransitionDuration: transitionDuration,
+        reverseTransitionDuration: reverseTransitionDuration,
         opaque: opaque,
         barrierDismissible: barrierDismissible,
         barrierColor: barrierColor,
@@ -116,6 +121,7 @@ sealed class QuickTransition<T> {
   // Rotation transition
   static PageRouteBuilder<T> rotation<T>(
     Widget child, {
+    RouteSettings? settings,
     Animation<double>? turns,
     Alignment? alignment,
     FilterQuality? filterQuality,
@@ -131,15 +137,16 @@ sealed class QuickTransition<T> {
   }) {
     return _transitionRoute<T>(
         child,
-        (animation) => RotationTransition(
+        (animation, transitionChild) => RotationTransition(
               turns:
                   turns ?? Tween<double>(begin: 0, end: 1).animate(animation),
-              alignment: alignment!,
+              alignment: alignment ?? Alignment.center,
               filterQuality: filterQuality,
-              child: child,
+              child: transitionChild,
             ),
+        settings: settings,
         transitionDuration: transitionDuration,
-        reverseTransitionDuration: transitionDuration,
+        reverseTransitionDuration: reverseTransitionDuration,
         opaque: opaque,
         barrierDismissible: barrierDismissible,
         barrierColor: barrierColor,
@@ -152,6 +159,7 @@ sealed class QuickTransition<T> {
   // Scale transition
   static PageRouteBuilder<T> scale<T>(
     Widget child, {
+    RouteSettings? settings,
     Animation<double>? scale,
     Alignment? alignment,
     FilterQuality? filterQuality,
@@ -167,15 +175,16 @@ sealed class QuickTransition<T> {
   }) {
     return _transitionRoute<T>(
         child,
-        (animation) => ScaleTransition(
-              alignment: alignment!,
+        (animation, transitionChild) => ScaleTransition(
+              alignment: alignment ?? Alignment.center,
               filterQuality: filterQuality,
               scale:
                   scale ?? Tween<double>(begin: 0, end: 1).animate(animation),
-              child: child,
+              child: transitionChild,
             ),
+        settings: settings,
         transitionDuration: transitionDuration,
-        reverseTransitionDuration: transitionDuration,
+        reverseTransitionDuration: reverseTransitionDuration,
         opaque: opaque,
         barrierDismissible: barrierDismissible,
         barrierColor: barrierColor,
@@ -188,6 +197,7 @@ sealed class QuickTransition<T> {
   // Size transition
   static PageRouteBuilder<T> size<T>(
     Widget child, {
+    RouteSettings? settings,
     Axis axis = Axis.vertical,
     Animation<double>? sizeFactor,
     double axisAlignment = 0.0,
@@ -204,16 +214,17 @@ sealed class QuickTransition<T> {
   }) {
     return _transitionRoute<T>(
         child,
-        (animation) => SizeTransition(
+        (animation, transitionChild) => SizeTransition(
               axisAlignment: axisAlignment,
               fixedCrossAxisSizeFactor: fixedCrossAxisSizeFactor,
               axis: axis,
               sizeFactor: sizeFactor ??
                   Tween<double>(begin: 0, end: 1).animate(animation),
-              child: child,
+              child: transitionChild,
             ),
+        settings: settings,
         transitionDuration: transitionDuration,
-        reverseTransitionDuration: transitionDuration,
+        reverseTransitionDuration: reverseTransitionDuration,
         opaque: opaque,
         barrierDismissible: barrierDismissible,
         barrierColor: barrierColor,
@@ -226,6 +237,7 @@ sealed class QuickTransition<T> {
   // Fade transition
   static PageRouteBuilder<T> fade<T>(
     Widget child, {
+    RouteSettings? settings,
     Animation<double>? opacity,
     bool alwaysIncludeSemantics = false,
     required Duration transitionDuration,
@@ -240,14 +252,15 @@ sealed class QuickTransition<T> {
   }) {
     return _transitionRoute<T>(
         child,
-        (animation) => FadeTransition(
+        (animation, transitionChild) => FadeTransition(
               opacity:
                   opacity ?? Tween<double>(begin: 0, end: 1).animate(animation),
               alwaysIncludeSemantics: alwaysIncludeSemantics,
-              child: child,
+              child: transitionChild,
             ),
+        settings: settings,
         transitionDuration: transitionDuration,
-        reverseTransitionDuration: transitionDuration,
+        reverseTransitionDuration: reverseTransitionDuration,
         opaque: opaque,
         barrierDismissible: barrierDismissible,
         barrierColor: barrierColor,

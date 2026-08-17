@@ -4,7 +4,12 @@ import 'package:flutter_quick_router/quick_router.dart';
 
 /// An extension that provides some handy methods for navigating between routes
 /// using the Navigator widget. It supports both regular and restorable routes,
-/// as well as different transition types.
+/// named routes, and different transition types.
+///
+/// For named routes backed by [QuickNamedRoute], register them with
+/// `MaterialApp.onGenerateRoute` when you want [QuickTransition] animations or
+/// route arguments. Use `MaterialApp.routes` only for simple named routes that
+/// do not need custom transitions.
 extension QuickRouters on BuildContext {
   /// A method that pushes a new route to the Navigator with the given child widget
   /// and transition type.
@@ -24,6 +29,18 @@ extension QuickRouters on BuildContext {
     QuickTransition? transitions,
   }) {
     return Navigator.of(this).push(QuickRouter.builder(child, transitions));
+  }
+
+  /// Pushes a named route using the active Navigator.
+  ///
+  /// If the named route is defined with [QuickNamedRoute] and a custom
+  /// [QuickTransition], prefer registering it through
+  /// `MaterialApp.onGenerateRoute: QuickRouter.onGenerateRoute(...)`.
+  Future<T?> pushNamed<T extends Object?>(
+    String routeName, {
+    Object? arguments,
+  }) {
+    return Navigator.of(this).pushNamed<T>(routeName, arguments: arguments);
   }
 
   /// A method that pops the current route and returns an optional result to the
@@ -57,6 +74,32 @@ extension QuickRouters on BuildContext {
         result: result);
   }
 
+  /// Pops the current route and pushes a named route in its place.
+  Future<T?> popAndPushNamed<T extends Object?, TO extends Object?>(
+    String routeName, {
+    TO? result,
+    Object? arguments,
+  }) {
+    return Navigator.of(this).popAndPushNamed<T, TO>(
+      routeName,
+      result: result,
+      arguments: arguments,
+    );
+  }
+
+  /// Pushes a named route and replaces the current route with it.
+  Future<T?> pushReplacementNamed<T extends Object?, TO extends Object?>(
+    String routeName, {
+    TO? result,
+    Object? arguments,
+  }) {
+    return Navigator.of(this).pushReplacementNamed<T, TO>(
+      routeName,
+      result: result,
+      arguments: arguments,
+    );
+  }
+
   /// A method that pushes a new route to the Navigator with the given child widget
   /// and transition type, and removes all the previous routes until the predicate
   /// is satisfied.
@@ -79,6 +122,20 @@ extension QuickRouters on BuildContext {
   }) {
     return Navigator.of(this).pushAndRemoveUntil<T>(
         QuickRouter.builder(child, transitions), predicate);
+  }
+
+  /// Pushes a named route and removes previous routes until [predicate]
+  /// returns true.
+  Future<T?> pushNamedAndRemoveUntil<T extends Object?>(
+    String newRouteName,
+    RoutePredicate predicate, {
+    Object? arguments,
+  }) {
+    return Navigator.of(this).pushNamedAndRemoveUntil<T>(
+      newRouteName,
+      predicate,
+      arguments: arguments,
+    );
   }
 
   /// A method that pushes a new restorable route to the Navigator with the given
@@ -121,6 +178,55 @@ extension QuickRouters on BuildContext {
         arguments: arguments);
   }
 
+  /// Pushes a named route that participates in state restoration.
+  String restorablePushNamed<T extends Object?>(
+    String routeName, {
+    Object? arguments,
+  }) {
+    return Navigator.of(this)
+        .restorablePushNamed<T>(routeName, arguments: arguments);
+  }
+
+  /// Pops the current route and pushes a restorable named route.
+  String restorablePopAndPushNamed<T extends Object?, TO extends Object?>(
+    String routeName, {
+    TO? result,
+    Object? arguments,
+  }) {
+    return Navigator.of(this).restorablePopAndPushNamed<T, TO>(
+      routeName,
+      result: result,
+      arguments: arguments,
+    );
+  }
+
+  /// Pushes a restorable named route and replaces the current route with it.
+  String restorablePushReplacementNamed<T extends Object?, TO extends Object?>(
+    String routeName, {
+    TO? result,
+    Object? arguments,
+  }) {
+    return Navigator.of(this).restorablePushReplacementNamed<T, TO>(
+      routeName,
+      result: result,
+      arguments: arguments,
+    );
+  }
+
+  /// Pushes a restorable named route and removes previous routes until
+  /// [predicate] returns true.
+  String restorablePushNamedAndRemoveUntil<T extends Object?>(
+    String newRouteName,
+    RoutePredicate predicate, {
+    Object? arguments,
+  }) {
+    return Navigator.of(this).restorablePushNamedAndRemoveUntil<T>(
+      newRouteName,
+      predicate,
+      arguments: arguments,
+    );
+  }
+
   /// A method that replaces the current route with a new one with the given child
   /// widget and transition type. It also preserves the type parameter of the
   /// current route.
@@ -136,7 +242,7 @@ extension QuickRouters on BuildContext {
   /// - [QuickFade]: Swiftly fades the content.
   ///
   /// The default transition is [QuickFade].
-  @optionalTypeArgs
+  // @optionalTypeArgs
   void replace<T extends Object?>(
       {required Widget old, required Widget to, QuickTransition? transitions}) {
     return Navigator.of(this).replace<T>(
@@ -162,12 +268,12 @@ extension QuickRouters on BuildContext {
   /// The default transition is [QuickFade].
   String restorableReplace<T extends Object?>(
       {required Widget old,
-      required RestorableRouteBuilder<T> to,
+      required Route<T> Function(BuildContext, Object?) toBuilder,
       QuickTransition? transitions,
       Object? arguments}) {
     return Navigator.of(this).restorableReplace<T>(
         oldRoute: QuickRouter.builder(old, transitions),
-        newRouteBuilder: to,
+        newRouteBuilder: toBuilder,
         arguments: arguments);
   }
 
@@ -251,5 +357,15 @@ extension QuickRouters on BuildContext {
   /// A method that removes the route below the given one from the Navigator.
   void removeRouteBelow(Route<dynamic> anchorRoute) {
     return Navigator.of(this).removeRouteBelow(anchorRoute);
+  }
+}
+
+class MyAppRoutes {
+  @pragma('vm:entry-point')
+  static Route<dynamic> myRestorableRouteBuilder(
+      BuildContext context, Object? arguments) {
+    return MaterialPageRoute(
+      builder: (context) => const Placeholder(),
+    );
   }
 }
