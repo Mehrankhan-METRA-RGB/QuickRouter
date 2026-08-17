@@ -1,10 +1,165 @@
 
 
 ## Features
-The `QuickRouter` extension provides handy methods for navigating between routes using the `Navigator` widget in Flutter. It supports both regular and restorable routes and offers various transition types.
+The `QuickRouter` extension provides handy methods for navigating between routes
+using Flutter's `Navigator`. It supports widget routes, named routes,
+restorable routes, and transition helpers.
 
-## Getting started
+## Named routes
 
+QuickRouter supports Flutter's current named-route APIs through `BuildContext`
+extensions and `QuickNamedRoute` definitions.
+
+### Available named-route methods
+
+- `context.pushNamed(...)`
+- `context.popAndPushNamed(...)`
+- `context.pushReplacementNamed(...)`
+- `context.pushNamedAndRemoveUntil(...)`
+- `context.restorablePushNamed(...)`
+- `context.restorablePopAndPushNamed(...)`
+- `context.restorablePushReplacementNamed(...)`
+- `context.restorablePushNamedAndRemoveUntil(...)`
+
+### `QuickNamedRoute`
+
+Use `QuickNamedRoute` to define a route name, its screen builder, and an
+optional `QuickTransition`.
+
+```dart
+QuickNamedRoute(
+  name: '/details',
+  builder: (context, arguments) => DetailsScreen(
+    message: arguments as String?,
+  ),
+  transitions: const QuickSlide(),
+)
+```
+
+### Choose the right setup
+
+| Use case | Setup |
+| --- | --- |
+| Simple named routes without custom transitions or arguments | `routes: QuickRouter.routes(...)` |
+| Named routes with `QuickTransition` animations or route arguments | `onGenerateRoute: QuickRouter.onGenerateRoute(...)` |
+
+Do **not** register the same route names in both `routes` and
+`onGenerateRoute`. Flutter resolves `routes` first, so those entries will skip
+the custom transition route builder.
+
+### Recommended setup for transitions and arguments
+
+```dart
+final List<QuickNamedRoute> appRoutes = <QuickNamedRoute>[
+  QuickNamedRoute(
+    name: '/',
+    builder: (context, arguments) => const HomeScreen(),
+  ),
+  QuickNamedRoute(
+    name: '/second',
+    builder: (context, arguments) => const SecondScreen(),
+    transitions: const QuickFade(),
+  ),
+  QuickNamedRoute(
+    name: '/third',
+    builder: (context, arguments) => ThirdScreen(
+      message: arguments as String?,
+    ),
+    transitions: const QuickSlide(),
+  ),
+];
+
+MaterialApp(
+  restorationScopeId: 'app',
+  initialRoute: '/',
+  onGenerateRoute: QuickRouter.onGenerateRoute(appRoutes),
+);
+```
+
+### Simple named routes
+
+```dart
+MaterialApp(
+  routes: QuickRouter.routes(<QuickNamedRoute>[
+    QuickNamedRoute(
+      name: '/',
+      builder: (context, arguments) => const HomeScreen(),
+    ),
+    QuickNamedRoute(
+      name: '/about',
+      builder: (context, arguments) => const AboutScreen(),
+    ),
+  ]),
+);
+```
+
+### Navigating to named routes
+
+```dart
+context.pushNamed('/second');
+
+context.pushNamed(
+  '/third',
+  arguments: 'Hello from home',
+);
+
+context.pushReplacementNamed(
+  '/third',
+  arguments: 'Replacement message',
+);
+
+context.popAndPushNamed('/fourth');
+
+context.pushNamedAndRemoveUntil(
+  '/home',
+  (route) => route.isFirst,
+);
+```
+
+### Reading route arguments
+
+Arguments passed with named routes are available in the `QuickNamedRoute`
+builder as the second parameter.
+
+```dart
+QuickNamedRoute(
+  name: '/profile',
+  builder: (context, arguments) {
+    final String? userId = arguments as String?;
+    return ProfileScreen(userId: userId);
+  },
+)
+```
+
+### Restorable named routes
+
+If your app uses state restoration, add a `restorationScopeId` to
+`MaterialApp`, then use the restorable named-route helpers.
+
+```dart
+MaterialApp(
+  restorationScopeId: 'app',
+  onGenerateRoute: QuickRouter.onGenerateRoute(appRoutes),
+);
+
+context.restorablePushNamed('/details', arguments: 'payload');
+context.restorablePopAndPushNamed('/details');
+context.restorablePushReplacementNamed('/details');
+context.restorablePushNamedAndRemoveUntil('/details', (route) => false);
+```
+
+### Named-route API summary
+
+| Method | Description |
+| --- | --- |
+| `pushNamed` | Push a named route. |
+| `popAndPushNamed` | Pop the current route, then push a named route. |
+| `pushReplacementNamed` | Replace the current route with a named route. |
+| `pushNamedAndRemoveUntil` | Push a named route and remove previous routes until the predicate returns `true`. |
+| `restorablePushNamed` | Push a named route with state restoration support. |
+| `restorablePopAndPushNamed` | Pop then push a restorable named route. |
+| `restorablePushReplacementNamed` | Replace the current route with a restorable named route. |
+| `restorablePushNamedAndRemoveUntil` | Push a restorable named route and clear previous routes until the predicate returns `true`. |
 
 
 ### context.to(NewScreen()) : 
@@ -15,8 +170,6 @@ For example:
 context.to(const SecondScreen())
 ```
 will navigate to the second screen using the default fade transition.
-
-
 
 ### context.back(result):
  This method pops the current route from the Navigator and returns an optional result. The result can be of any type and it will be passed to the previous route.
@@ -110,4 +263,3 @@ const like = 'sample';
 TODO: Tell users more about the package: where to find more information, how to
 contribute to the package, how to file issues, what response they can expect
 from the package authors, and more.
-

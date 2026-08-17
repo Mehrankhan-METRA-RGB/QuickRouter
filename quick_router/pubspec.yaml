@@ -1,6 +1,6 @@
 name: flutter_quick_router
 description: "A Flutter package for easy route navigation with Navigator, supporting regular and restorable routes with various transitions."
-version: 0.0.3
+version: 0.0.4
 homepage: https://github.com/Mehrankhan-METRA-RGB/QuickRouter
 repository: https://github.com/Mehrankhan-METRA-RGB/QuickRouter.git
 issue_tracker: https://github.com/Mehrankhan-METRA-RGB/QuickRouter/issues
